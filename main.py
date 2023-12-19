@@ -17,7 +17,7 @@ def custom_openapi():
         return app.openapi_schema
 
     openapi_schema = get_openapi(
-        title="Fast Food Delivery API",
+        title="ChapChap: Fast Food Delivery API",
         version="1.0",
         description="An API for a Fast Food Delivery Services",
         routes=app.routes,
