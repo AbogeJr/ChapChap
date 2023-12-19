@@ -8,7 +8,7 @@ from schemas import OrderModel, OrderStatusModel
 from database import Session, engine
 from fastapi.encoders import jsonable_encoder
 
-order_router = APIRouter(prefix="/orders", tags=["orders"])
+order_router = APIRouter(prefix="/orders", tags=["order"])
 
 
 session = Session(bind=engine)

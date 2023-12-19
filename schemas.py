@@ -38,7 +38,6 @@ class MealModel(BaseModel):
     id: Optional[int]
     name: str
     price: int
-    order_id: Optional[int]  # Added order_id to associate Meal with an Order
 
     class Config:
         orm_mode = True
@@ -46,7 +45,6 @@ class MealModel(BaseModel):
             "example": {
                 "name": "Pepperoni Pizza",
                 "price": 10,
-                "order_id": 1,
             }
         }
 
