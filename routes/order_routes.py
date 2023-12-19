@@ -35,9 +35,7 @@ order_router = APIRouter()
 
 
 @order_router.post("/order", status_code=status.HTTP_201_CREATED)
-async def place_an_order(
-    order: OrderModel, Authorize: AuthJWT = Depends(), session: Session = Depends()
-):
+async def place_an_order(order: OrderModel, Authorize: AuthJWT = Depends()):
     """
     ## Placing an Order
     This requires the following

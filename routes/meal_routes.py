@@ -43,7 +43,7 @@ async def get_all_meals(Authorize: AuthJWT = Depends()):
 
 
 @meal_router.post("/meal", status_code=status.HTTP_201_CREATED)
-async def create_meal(meal: MealModel, session: Session = Depends()):
+async def create_meal(meal: MealModel):
     """
     ## Create a new Meal
     This requires the following
