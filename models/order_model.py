@@ -3,37 +3,13 @@ from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils.types import ChoiceType
 
-# Define a association table to represent the many-to-many relationship
+
 order_meal_association = Table(
     "order_meal_association",
     Base.metadata,
     Column("order_id", Integer, ForeignKey("order.id")),
     Column("meal_id", Integer, ForeignKey("meal.id")),
 )
-
-
-class User(Base):
-    __tablename__ = "user"
-    id = Column(Integer, primary_key=True)
-    username = Column(String(25), unique=True)
-    email = Column(String(80), unique=True)
-    password = Column(Text, nullable=True)
-    is_staff = Column(Boolean, default=False)
-    is_active = Column(Boolean, default=False)
-    orders = relationship("Order", back_populates="user")
-
-    def __repr__(self):
-        return f"<User {self.username}>"
-
-
-class Meal(Base):
-    __tablename__ = "meal"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(80), unique=True)
-    price = Column(Integer, nullable=False)
-    orders = relationship(
-        "Order", secondary=order_meal_association, back_populates="meals"
-    )
 
 
 class Order(Base):

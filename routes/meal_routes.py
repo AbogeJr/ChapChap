@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi_jwt_auth import AuthJWT
-from models import User, Order, Meal
+from models.order_model import Order
+from models.user_model import User
+from models.meal_model import Meal
+
 from schemas import OrderModel, OrderStatusModel, MealModel
 from database import Session, engine
 from fastapi.encoders import jsonable_encoder
@@ -40,40 +43,30 @@ async def get_all_meals(Authorize: AuthJWT = Depends()):
 
 
 @meal_router.post("/meal", status_code=status.HTTP_201_CREATED)
-async def place_an_order(order: OrderModel, Authorize: AuthJWT = Depends()):
+async def create_meal(meal: MealModel, session: Session = Depends()):
     """
-    ## Adding a meal to the database
+    ## Create a new Meal
     This requires the following
-    - name : string
-    - price : integer
-
+    - name: str
+    - price: int
     """
 
-    try:
-        Authorize.jwt_required()
-
-    except Exception as e:
+    # Check if the meal name is unique
+    existing_meal = session.query(Meal).filter(Meal.name == meal.name).first()
+    if existing_meal:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Meal name must be unique"
         )
 
-    current_user = Authorize.get_jwt_subject()
+    new_meal = Meal(name=meal.name, price=meal.price)
 
-    user = session.query(User).filter(User.username == current_user).first()
-
-    new_order = Order(pizza_size=order.pizza_size, quantity=order.quantity)
-
-    new_order.user = user
-
-    session.add(new_order)
-
+    session.add(new_meal)
     session.commit()
 
     response = {
-        "pizza_size": new_order.pizza_size,
-        "quantity": new_order.quantity,
-        "id": new_order.id,
-        "order_status": new_order.order_status,
+        "id": new_meal.id,
+        "name": new_meal.name,
+        "price": new_meal.price,
     }
 
-    return jsonable_encoder(response)
+    return response
