@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class SignUpModel(BaseModel):
@@ -34,16 +34,41 @@ class LoginModel(BaseModel):
     password: str
 
 
+class MealModel(BaseModel):
+    id: Optional[int]
+    name: str
+    price: int
+    order_id: Optional[int]  # Added order_id to associate Meal with an Order
+
+    class Config:
+        orm_mode = True
+        schema_extra = {
+            "example": {
+                "name": "Pepperoni Pizza",
+                "price": 10,
+                "order_id": 1,
+            }
+        }
+
+
 class OrderModel(BaseModel):
     id: Optional[int]
     quantity: int
     order_status: Optional[str] = "PENDING"
-    pizza_size: Optional[str] = "SMALL"
     user_id: Optional[int]
+    meals: List[MealModel]  # List of meals associated with the order
 
     class Config:
         orm_mode = True
-        schema_extra = {"example": {"quantity": 2, "pizza_size": "LARGE"}}
+        schema_extra = {
+            "example": {
+                "quantity": 2,
+                "meals": [
+                    {"name": "Pizza", "price": 10},
+                    {"name": "Burger", "price": 8},
+                ],
+            }
+        }
 
 
 class OrderStatusModel(BaseModel):

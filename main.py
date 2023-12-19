@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from auth_routes import auth_router
 from order_routes import order_router
+from meal_routes import meal_router
 from fastapi_jwt_auth import AuthJWT
 from schemas import Settings
 import inspect, re
@@ -16,9 +17,9 @@ def custom_openapi():
         return app.openapi_schema
 
     openapi_schema = get_openapi(
-        title="Pizza Delivery API",
+        title="Fast Food Delivery API",
         version="1.0",
-        description="An API for a Pizza Delivery Service",
+        description="An API for a Fast Food Delivery Services",
         routes=app.routes,
     )
 
@@ -64,3 +65,4 @@ def get_config():
 
 app.include_router(auth_router)
 app.include_router(order_router)
+app.include_router(meal_router)
