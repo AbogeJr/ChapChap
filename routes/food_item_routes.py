@@ -2,29 +2,29 @@ from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi_jwt_auth import AuthJWT
 from models.user_model import User
-from models.meal_model import Meal
-from schemas import MealModel
+from models.food_item_model import FoodItem
+from schemas.food_item_schema import FoodItemModel
 from database import Session, engine
 from fastapi.encoders import jsonable_encoder
 
-meal_router = APIRouter(prefix="/meals", tags=["meals"])
+food_item_router = APIRouter(prefix="/food_item", tags=["food items"])
 
 
 session = Session(bind=engine)
 
 
-@meal_router.get("/")
-async def get_all_meals():
+@food_item_router.get("/")
+async def get_all_food_items():
     """
     ## Gets all meals available in the database
     """
-    meals = session.query(Meal).all()
+    meals = session.query(FoodItem).all()
 
     return jsonable_encoder(meals)
 
 
-@meal_router.post("/add", status_code=status.HTTP_201_CREATED)
-async def create_meal(meal: MealModel, Authorize: AuthJWT = Depends()):
+@food_item_router.post("/add", status_code=status.HTTP_201_CREATED)
+async def create_food_item(meal: FoodItemModel, Authorize: AuthJWT = Depends()):
     """
     ## Create a new Meal
     This requires the following
@@ -46,14 +46,16 @@ async def create_meal(meal: MealModel, Authorize: AuthJWT = Depends()):
 
     if user.is_staff:
         # Check if the meal name is unique
-        existing_meal = session.query(Meal).filter(Meal.name == meal.name).first()
+        existing_meal = (
+            session.query(FoodItem).filter(FoodItem.name == meal.name).first()
+        )
         if existing_meal:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Meal name must be unique",
             )
 
-        new_meal = Meal(name=meal.name, price=meal.price)
+        new_meal = FoodItem(name=meal.name, price=meal.price)
 
         session.add(new_meal)
         session.commit()
@@ -71,18 +73,20 @@ async def create_meal(meal: MealModel, Authorize: AuthJWT = Depends()):
     )
 
 
-@meal_router.get("/{id}")
-async def get_specific_meal(id: int):
+@food_item_router.get("/{id}")
+async def get_specific_food_item(id: int):
     """
     ## Gets a specific meal by id
     """
-    meal = session.query(Meal).filter(Meal.id == id).first()
+    meal = session.query(FoodItem).filter(FoodItem.id == id).first()
 
     return jsonable_encoder(meal)
 
 
-@meal_router.put("/{id}/update/", status_code=status.HTTP_201_CREATED)
-async def update_meal(id: int, meal: MealModel, Authorize: AuthJWT = Depends()):
+@food_item_router.put("/{id}/update/", status_code=status.HTTP_201_CREATED)
+async def update_food_item(
+    id: int, meal: FoodItemModel, Authorize: AuthJWT = Depends()
+):
     """
     ## Updates a specific Meal's details
     This requires the following
@@ -103,7 +107,7 @@ async def update_meal(id: int, meal: MealModel, Authorize: AuthJWT = Depends()):
     user = session.query(User).filter(User.username == current_user).first()
 
     if user.is_staff:
-        meal_to_update = session.query(Meal).filter(Meal.id == id).first()
+        meal_to_update = session.query(FoodItem).filter(FoodItem.id == id).first()
 
         meal_to_update.name = meal.name
         meal_to_update.price = meal.price
@@ -123,8 +127,8 @@ async def update_meal(id: int, meal: MealModel, Authorize: AuthJWT = Depends()):
     )
 
 
-@meal_router.delete("/{id}/delete/", status_code=status.HTTP_201_CREATED)
-async def delete_meal(id: int, Authorize: AuthJWT = Depends()):
+@food_item_router.delete("/{id}/delete/", status_code=status.HTTP_201_CREATED)
+async def delete_food_item(id: int, Authorize: AuthJWT = Depends()):
     """
     ## Deletes a specific Meal's details
     This requires the following
@@ -144,7 +148,7 @@ async def delete_meal(id: int, Authorize: AuthJWT = Depends()):
     user = session.query(User).filter(User.username == current_user).first()
 
     if user.is_staff:
-        meal_to_delete = session.query(Meal).filter(Meal.id == id).first()
+        meal_to_delete = session.query(FoodItem).filter(FoodItem.id == id).first()
 
         session.delete(meal_to_delete)
 

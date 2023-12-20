@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Depends
 from fastapi.exceptions import HTTPException
 from database import Session, engine
-from schemas import SignUpModel, LoginModel
+from schemas.auth_schema import SignUpModel, LoginModel
 from models.user_model import User
 from fastapi.exceptions import HTTPException
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -15,7 +15,7 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 session = Session(bind=engine)
 
 
-@auth_router.get("/")
+@auth_router.get("/test")
 async def hello(Authorize: AuthJWT = Depends()):
     """
     ## Sample hello world route
@@ -76,7 +76,16 @@ async def signup(user: SignUpModel):
 
     session.commit()
 
-    return new_user
+    response = {
+        "message": "User created",
+        "object": {
+            "username": new_user.username,
+            "email": new_user.email,
+            "is_staff": new_user.is_staff,
+            "is_active": new_user.is_active,
+        },
+    }
+    return jsonable_encoder(response)
 
 
 # login route

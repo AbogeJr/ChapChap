@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from routes.auth_routes import auth_router
 from routes.order_routes import order_router
-from routes.meal_routes import meal_router
+from routes.food_item_routes import food_item_router
+from routes.user_routes import user_router
 from fastapi_jwt_auth import AuthJWT
-from schemas import Settings
+from schemas.settings_schema import Settings
 import inspect, re
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
@@ -64,5 +65,6 @@ def get_config():
 
 
 app.include_router(auth_router)
+app.include_router(user_router)
 app.include_router(order_router)
-app.include_router(meal_router)
+app.include_router(food_item_router)
