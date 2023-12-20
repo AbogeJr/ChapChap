@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Depends
 from fastapi.exceptions import HTTPException
 from database import Session, engine
-from schemas.auth_schema import SignUpModel, LoginModel
+from schemas import SignUpModel, LoginModel
 from models.user_model import User
 from fastapi.exceptions import HTTPException
 from werkzeug.security import generate_password_hash, check_password_hash

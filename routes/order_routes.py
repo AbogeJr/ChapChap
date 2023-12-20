@@ -2,8 +2,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi_jwt_auth import AuthJWT
 from models import OrderItem, Order, User
-from schemas.order_schema import OrderCreate
-from schemas.order_item_schema import OrderItemCreate
+from schemas import OrderCreate, OrderItemCreate
 from database import Session, engine
 from fastapi.encoders import jsonable_encoder
 from typing import List
