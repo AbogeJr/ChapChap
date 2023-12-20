@@ -1,6 +1,6 @@
 # ChapChap Fastfood API
 
-This project is a FastAPI-based API with SQLAlchemy as the ORM and PostgreSQL as the database. It allows users to manage orders, meals, and a shopping cart.
+This is my capstone project for ALX Software Engineering Backend Specializtion. It is a FastAPI-based RESTful API with SQLAlchemy as the ORM and PostgreSQL as the database engine. It allows management of users, orders, food items, and deliveries.
 
 ## Prerequisites
 
