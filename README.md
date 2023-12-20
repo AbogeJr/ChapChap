@@ -46,10 +46,15 @@ PostgreSQL
    pip install -r requirements.txt
    ```
 5. Configure PostgreSQL Database:
-   Create a PostgreSQL database and update the database configuration/credentials in database.py. i.e
-   ```python
-   engine = create_engine("postgresql://[database_username]:[password]@[database_host]/[database_name]", echo=True)
+   Create a PostgreSQL database and populate your database credentials in the .env file i.e
+
+   ```bash
+   DB_USER=[username]
+   DB_HOST=[hostname]
+   DB_PASSWORD=[password]
+   DB_NAME=[database_name]
    ```
+
 6. Run this command to update the databse schema
    ```bash
    python init_db.py
@@ -62,3 +67,7 @@ PostgreSQL
 
 ![Screenshot](screenshot.png)
 The API documentation will be available at http://127.0.0.1:8000/docs
+
+Register a user at http://127.0.0.1:8000/docs/auth/signup, authenticate and Enjoy!
+
+Happy Hacking!

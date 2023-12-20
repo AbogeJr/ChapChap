@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from routes.auth_routes import auth_router
 from routes.order_routes import order_router
 from routes.food_item_routes import food_item_router
@@ -9,6 +9,7 @@ import inspect, re
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from fastapi.openapi.utils import get_openapi
+from fastapi.encoders import jsonable_encoder
 
 app = FastAPI()
 
@@ -64,6 +65,24 @@ def get_config():
     return Settings()
 
 
+base_router = APIRouter(tags=["welcome"])
+
+
+@base_router.get("/")
+async def welcome():
+    """
+    ## Welcome to ChapChap API
+
+    """
+
+    response = (
+        "Welcome to ChapChap FastFood API 💥️. Check out the documetation at 👉️ http://localhost:8000/docs",
+    )
+
+    return response
+
+
+app.include_router(base_router)
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(order_router)
