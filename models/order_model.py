@@ -7,6 +7,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils.types import ChoiceType
+from . import OrderItem
 
 
 class Order(Base):
@@ -21,13 +22,13 @@ class Order(Base):
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     order_status = Column(ChoiceType(choices=ORDER_STATUS), default="PENDING")
     user = relationship("User", back_populates="orders")
-    orders_items = relationship("OrderItem", back_populates="orders")
+    order_items = relationship("OrderItem", back_populates="order")
     total = Column(Float, default=0.0)
 
     def __repr__(self):
         return f"<Order {self.id}>"
 
-    # Use a property to calculate the total based on meal prices and quantity
     @property
     def calculate_total(self):
-        return sum(order_item.total for order_item in self.order_items)
+        self.total = sum(order_item.total for order_item in self.order_items)
+        return self.total

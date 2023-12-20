@@ -76,7 +76,16 @@ async def signup(user: SignUpModel):
 
     session.commit()
 
-    return new_user
+    response = {
+        "message": "User created",
+        "object": {
+            "username": new_user.username,
+            "email": new_user.email,
+            "is_staff": new_user.is_staff,
+            "is_active": new_user.is_active,
+        },
+    }
+    return jsonable_encoder(response)
 
 
 # login route

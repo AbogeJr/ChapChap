@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi_jwt_auth import AuthJWT
-from models.user_model import User
+from models import User
 from schemas.auth_schema import SignUpModel
 from database import Session, engine
 from fastapi.encoders import jsonable_encoder

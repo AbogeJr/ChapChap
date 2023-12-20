@@ -18,4 +18,5 @@ class OrderItem(Base):
 
     @property
     def calculate_total(self):
-        return self.food_item.price * self.quantity if self.food_item else 0
+        self.total = self.food_item.price * self.quantity if self.food_item else 0
+        return self.total
