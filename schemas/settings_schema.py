@@ -1,6 +1,10 @@
 from pydantic import BaseModel
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 class Settings(BaseModel):
-    authjwt_secret_key: str = "aboge"
-    authjwt_access_token_expires: bool = False
+    authjwt_secret_key: str = os.getenv("JWT_SECRET_KEY")

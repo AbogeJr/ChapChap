@@ -12,21 +12,42 @@ user_router = APIRouter(prefix="/users", tags=["users"])
 session = Session(bind=engine)
 
 
-@user_router.get("/")
-async def get_all_users():
+@user_router.get("/", status_code=status.HTTP_200_OK)
+async def get_all_users(Authorize: AuthJWT = Depends()):
     """
-    ## Gets all users registered in the database
+    ## Get all users registered in the database
     """
+    try:
+        Authorize.jwt_required()
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token"
+        )
+
     users = session.query(User).all()
 
     return jsonable_encoder(users)
 
 
-@user_router.get("/{id}")
-async def get_specific_user(id: int):
+@user_router.get("/{id}", status_code=status.HTTP_200_OK)
+async def get_specific_user(id: int, Authorize: AuthJWT = Depends()):
     """
-    ## Gets a specific user by id
+    ## Get a specific user by id
+    This requires:
+    ```
+        id: int
+    ```
     """
+
+    try:
+        Authorize.jwt_required()
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token"
+        )
+
     user = session.query(User).filter(User.id == id).first()
     if user:
         response = {
@@ -46,11 +67,24 @@ async def get_specific_user(id: int):
     )
 
 
-@user_router.get("/{id}/orders")
-async def get_user_orders(id: int):
+@user_router.get("/{id}/orders", status_code=status.HTTP_200_OK)
+async def get_user_orders(id: int, Authorize: AuthJWT = Depends()):
     """
     ## Gets all orders by a specific user by id
+    This requires:
+    ```
+        id: int
+    ```
     """
+
+    try:
+        Authorize.jwt_required()
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token"
+        )
+
     user = session.query(User).filter(User.id == id).first()
     orders = session.query(Order).filter(Order.user_id == id).all()
     if user:
@@ -73,11 +107,14 @@ async def update_user(id: int, user: SignUpModel, Authorize: AuthJWT = Depends()
     """
     ## Updates a specific user's details
     This requires the following
-    - username: str
-    - email: str
-    - password: str
-    - is_staff: bool
-    - is_active: bool
+    ```
+        id: int
+        username: str
+        email: str
+        password: str
+        is_staff: bool
+        is_active: bool
+    ```
     """
 
     try:
@@ -101,7 +138,14 @@ async def update_user(id: int, user: SignUpModel, Authorize: AuthJWT = Depends()
         user_to_update.is_staff = user.is_staff
         user_to_update.is_active = user.is_active
 
-        session.commit()
+        try:
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            return HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=e.with_traceback(),
+            )
 
         response = {
             "message": "User Updated",
@@ -121,7 +165,7 @@ async def update_user(id: int, user: SignUpModel, Authorize: AuthJWT = Depends()
     )
 
 
-@user_router.delete("/{id}/delete/", status_code=status.HTTP_201_CREATED)
+@user_router.delete("/{id}/delete/", status_code=status.HTTP_200_OK)
 async def delete_user(id: int, Authorize: AuthJWT = Depends()):
     """
     ## Deletes a specific user from database
@@ -144,9 +188,15 @@ async def delete_user(id: int, Authorize: AuthJWT = Depends()):
     if user.is_staff:
         user_to_delete = session.query(User).filter(User.id == id).first()
 
-        session.delete(user_to_delete)
-
-        session.commit()
+        try:
+            session.delete(user_to_delete)
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            return HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=e.with_traceback(),
+            )
 
         response = {
             "message": "Deleted",

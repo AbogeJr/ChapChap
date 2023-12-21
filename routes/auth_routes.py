@@ -15,27 +15,10 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 session = Session(bind=engine)
 
 
-@auth_router.get("/test")
-async def hello(Authorize: AuthJWT = Depends()):
-    """
-    ## Sample hello world route
-
-    """
-    try:
-        Authorize.jwt_required()
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token"
-        )
-
-    return {"message": "Hello World"}
-
-
 @auth_router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def signup(user: SignUpModel):
     """
-    ## Create a user
+    ## Create a new user
     This requires the following
     ```
             username:int
@@ -45,7 +28,6 @@ async def signup(user: SignUpModel):
             is_active:bool
 
     ```
-
     """
 
     db_email = session.query(User).filter(User.email == user.email).first()
@@ -72,9 +54,14 @@ async def signup(user: SignUpModel):
         is_staff=user.is_staff,
     )
 
-    session.add(new_user)
-
-    session.commit()
+    try:
+        session.add(new_user)
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        return HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=e.with_traceback()
+        )
 
     response = {
         "message": "User created",
