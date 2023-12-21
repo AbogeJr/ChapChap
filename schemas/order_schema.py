@@ -1,5 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel
+from schemas import OrderItemCreate
 
 
 class OrderCreate(BaseModel):
@@ -8,3 +9,7 @@ class OrderCreate(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class OrderWithItems(OrderCreate):
+    order_items: List[OrderItemCreate]

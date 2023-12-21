@@ -15,17 +15,17 @@ session = Session(bind=engine)
 @food_item_router.get("/")
 async def get_all_food_items():
     """
-    ## Gets all meals available in the database
+    ## Gets all food items available in the database
     """
-    meals = session.query(FoodItem).all()
+    food_items = session.query(FoodItem).all()
 
-    return jsonable_encoder(meals)
+    return jsonable_encoder(food_items)
 
 
 @food_item_router.post("/add", status_code=status.HTTP_201_CREATED)
-async def create_food_item(meal: FoodItemModel, Authorize: AuthJWT = Depends()):
+async def create_food_item(food_item: FoodItemModel, Authorize: AuthJWT = Depends()):
     """
-    ## Create a new Meal
+    ## Create a new Food Item
     This requires the following
     - name: str
     - price: int
@@ -44,25 +44,25 @@ async def create_food_item(meal: FoodItemModel, Authorize: AuthJWT = Depends()):
     user = session.query(User).filter(User.username == current_user).first()
 
     if user.is_staff:
-        # Check if the meal name is unique
-        existing_meal = (
-            session.query(FoodItem).filter(FoodItem.name == meal.name).first()
+        # Check if the food item name is unique
+        existing_food_item = (
+            session.query(FoodItem).filter(FoodItem.name == food_item.name).first()
         )
-        if existing_meal:
+        if existing_food_item:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Meal name must be unique",
+                detail="Food item name must be unique",
             )
 
-        new_meal = FoodItem(name=meal.name, price=meal.price)
+        new_food_item = FoodItem(name=food_item.name, price=food_item.price)
 
-        session.add(new_meal)
+        session.add(new_food_item)
         session.commit()
 
         response = {
-            "id": new_meal.id,
-            "name": new_meal.name,
-            "price": new_meal.price,
+            "id": new_food_item.id,
+            "name": new_food_item.name,
+            "price": new_food_item.price,
         }
 
         return response
@@ -75,19 +75,19 @@ async def create_food_item(meal: FoodItemModel, Authorize: AuthJWT = Depends()):
 @food_item_router.get("/{id}")
 async def get_specific_food_item(id: int):
     """
-    ## Gets a specific meal by id
+    ## Gets a specific food item by id
     """
-    meal = session.query(FoodItem).filter(FoodItem.id == id).first()
+    food_item = session.query(FoodItem).filter(FoodItem.id == id).first()
 
-    return jsonable_encoder(meal)
+    return jsonable_encoder(food_item)
 
 
 @food_item_router.put("/{id}/update/", status_code=status.HTTP_201_CREATED)
 async def update_food_item(
-    id: int, meal: FoodItemModel, Authorize: AuthJWT = Depends()
+    id: int, food_item: FoodItemModel, Authorize: AuthJWT = Depends()
 ):
     """
-    ## Updates a specific Meal's details
+    ## Updates a specific Food item's details
     This requires the following
     - name: str
     - price: int
@@ -106,17 +106,17 @@ async def update_food_item(
     user = session.query(User).filter(User.username == current_user).first()
 
     if user.is_staff:
-        meal_to_update = session.query(FoodItem).filter(FoodItem.id == id).first()
+        food_item_to_update = session.query(FoodItem).filter(FoodItem.id == id).first()
 
-        meal_to_update.name = meal.name
-        meal_to_update.price = meal.price
+        food_item_to_update.name = food_item.name
+        food_item_to_update.price = food_item.price
 
         session.commit()
 
         response = {
-            "id": meal_to_update.id,
-            "name": meal_to_update.name,
-            "price": meal_to_update.price,
+            "id": food_item_to_update.id,
+            "name": food_item_to_update.name,
+            "price": food_item_to_update.price,
         }
 
         return response
@@ -129,7 +129,7 @@ async def update_food_item(
 @food_item_router.delete("/{id}/delete/", status_code=status.HTTP_201_CREATED)
 async def delete_food_item(id: int, Authorize: AuthJWT = Depends()):
     """
-    ## Deletes a specific Meal's details
+    ## Deletes a specific Food item's details
     This requires the following
     - id: int
     """
@@ -147,18 +147,18 @@ async def delete_food_item(id: int, Authorize: AuthJWT = Depends()):
     user = session.query(User).filter(User.username == current_user).first()
 
     if user.is_staff:
-        meal_to_delete = session.query(FoodItem).filter(FoodItem.id == id).first()
+        food_item_to_delete = session.query(FoodItem).filter(FoodItem.id == id).first()
 
-        session.delete(meal_to_delete)
+        session.delete(food_item_to_delete)
 
         session.commit()
 
         response = {
             "message": "Deleted",
             "object": {
-                "id": meal_to_delete.id,
-                "name": meal_to_delete.name,
-                "price": meal_to_delete.price,
+                "id": food_item_to_delete.id,
+                "name": food_item_to_delete.name,
+                "price": food_item_to_delete.price,
             },
         }
 

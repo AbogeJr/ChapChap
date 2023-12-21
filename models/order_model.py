@@ -19,14 +19,14 @@ class Order(Base):
 
     __tablename__ = "order"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     order_status = Column(ChoiceType(choices=ORDER_STATUS), default="PENDING")
     user = relationship("User", back_populates="orders")
-    order_items = relationship("OrderItem", back_populates="order")
+    order_items = relationship("OrderItem", cascade="delete", back_populates="order")
     total = Column(Float, default=0.0)
 
     def __repr__(self):
-        return f"<Order {self.id}>"
+        return f"<Order {self.order_items}>"
 
     @property
     def calculate_total(self):

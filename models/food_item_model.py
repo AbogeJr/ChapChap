@@ -15,4 +15,6 @@ class FoodItem(Base):
     name = Column(String(80), unique=True)
     available = Column(Boolean, default=True)
     price = Column(Float, nullable=False)
-    order_items = relationship("OrderItem", back_populates="food_item")
+    order_items = relationship(
+        "OrderItem", cascade="delete", back_populates="food_item"
+    )

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi_jwt_auth import AuthJWT
-from models import User
+from models import User, Order
 from schemas import SignUpModel
 from database import Session, engine
 from fastapi.encoders import jsonable_encoder
@@ -52,12 +52,13 @@ async def get_user_orders(id: int):
     ## Gets all orders by a specific user by id
     """
     user = session.query(User).filter(User.id == id).first()
+    orders = session.query(Order).filter(Order.user_id == id).all()
     if user:
         response = {
             "message": "User Orders found",
             "data": {
                 "user_id": user.id,
-                "orders": user.orders,
+                "orders": orders,
             },
         }
         return jsonable_encoder(response)

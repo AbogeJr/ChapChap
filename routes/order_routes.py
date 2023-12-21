@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi_jwt_auth import AuthJWT
 from models import OrderItem, Order, User
-from schemas import OrderCreate, OrderItemCreate
+from schemas import OrderCreate, OrderItemCreate, OrderWithItems
 from database import Session, engine
 from fastapi.encoders import jsonable_encoder
 from typing import List
@@ -136,23 +136,67 @@ async def get_user_orders(userId: int):
     )
 
 
-@order_router.post("/create", status_code=status.HTTP_201_CREATED)
+# @order_router.post("/create", status_code=status.HTTP_201_CREATED)
+# async def place_an_order(
+#     order: OrderCreate, userId: int, Authorize: AuthJWT = Depends()
+# ):
+#     user = session.query(User).filter(User.id == userId).first()
+#     if user:
+#         # Create a new order
+#         new_order = Order(**order.dict())
+#         new_order.user_id = userId
+#         session.add(new_order)
+#         session.commit()
+
+#         response = {
+#             "message": f"Order Created for user {userId}",
+#             "object": {
+#                 "id": new_order.id,
+#                 "order_status": new_order.order_status,
+#                 "user": new_order.user.username,
+#             },
+#         }
+
+#         return jsonable_encoder(response)
+
+#     raise HTTPException(
+#         status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id:{id} not found"
+#     )
+
+
+@order_router.post("/new", status_code=status.HTTP_201_CREATED)
 async def place_an_order(
-    order: OrderCreate, userId: int, Authorize: AuthJWT = Depends()
+    order: OrderWithItems, userId: int, Authorize: AuthJWT = Depends()
 ):
+    """
+    ## Creates a new order with order items included
+    """
     user = session.query(User).filter(User.id == userId).first()
     if user:
         # Create a new order
-        new_order = Order(**order.dict())
+
+        new_order = Order()
         new_order.user_id = userId
+        new_order.order_status = order.order_status
+
         session.add(new_order)
         session.commit()
+        for item in order.order_items:
+            new_order_item = OrderItem()
+            new_order_item.order_id = new_order.id
+            new_order_item.food_item_id = item.food_item_id
+            new_order_item.quantity = item.quantity
+            session.add(new_order_item)
+            session.commit()
+            new_order_item.calculate_total
+            new_order.calculate_total
 
         response = {
             "message": f"Order Created for user {userId}",
             "object": {
                 "id": new_order.id,
                 "order_status": new_order.order_status,
+                "order_items": new_order.order_items,
                 "user": new_order.user.username,
             },
         }
